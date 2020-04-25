@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="290dp"
+    app:behavior_expandedOffset="150dp"
+    app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+    tools:context=".app.modules.createAttestation.CreateAttestationFragment">
+
+    <LinearLayout
+        android:id="@+id/checkBoxContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkboxGroceries"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Go make groceries"
+            android:textColor="@android:color/white"/>
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkboxWalk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go for a walk"
+            android:textColor="@android:color/white"/>
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkboxDoctor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go see the doctor"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/createAttestationButton"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_margin="24dp"
+        app:backgroundTint="@color/colorAccent"
+        app:cornerRadius="10dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Create Attestation"
+        app:icon="@drawable/ic_add_note"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/checkBoxContainer"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

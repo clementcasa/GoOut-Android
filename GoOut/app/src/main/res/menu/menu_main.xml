@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="io.clemcasa.goout.app.modules.main.MainActivity">
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_account"
+        android:title=""
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_delete_all"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_delete"
+        android:title="Delete all"
+        app:showAsAction="never" />
+</menu>

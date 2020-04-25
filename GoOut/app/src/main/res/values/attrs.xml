@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <attr name="backgroundColor" format="color" />
+    <attr name="backgroundCornerRadius" format="dimension" />
+    <attr name="backgroundCornerRadiusMask" format="flags">
+        <flag name="topLeft" value="1" />
+        <flag name="topRight" value="2" />
+        <flag name="bottomRight" value="4" />
+        <flag name="bottomLeft" value="8" />
+        <flag name="all" value="15" />
+    </attr>
+    <attr name="strokeThickness" format="integer" />
+    <attr name="strokeColor" format="color" tools:override="true" />
+
+    <declare-styleable name="CustomConstraintLayout">
+        <attr name="backgroundColor"/>
+        <attr name="backgroundCornerRadius"/>
+        <attr name="backgroundCornerRadiusMask"/>
+        <attr name="strokeThickness"/>
+        <attr name="strokeColor"/>
+    </declare-styleable>
+</resources>
