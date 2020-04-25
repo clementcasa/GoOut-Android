@@ -1,38 +1,34 @@
 package io.clemcasa.goout.app.modules.main
 
-import android.Manifest
-import android.app.DownloadManager
-import android.content.Context
-import android.content.pm.PackageManager
-import android.net.Uri
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
-import android.webkit.DownloadListener
-import android.webkit.JsResult
-import android.webkit.WebChromeClient
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.clemcasa.goout.R
 import io.clemcasa.goout.app.modules.createAttestation.CreateAttestationFragment
+import io.clemcasa.goout.app.modules.detailsAttestation.DetailsAttestationActivity
 import io.clemcasa.goout.app.modules.main.adapter.AttestationListAdapter
+import io.clemcasa.goout.app.modules.main.adapter.AttestationListAdapterDelegate
 import io.clemcasa.goout.app.modules.main.itemdecoration.SpaceItemDecoration
-import io.clemcasa.goout.app.utils.JavaScriptInterface
+import io.clemcasa.goout.app.utils.IntentRequest
 import io.clemcasa.goout.databinding.ActivityMainBinding
-import java.net.URLDecoder
-import java.security.AccessController.getContext
+import java.io.File
 
-class MainActivity: AppCompatActivity() {
+interface MainViewDelegate {
+    fun didCreateNewAttestation()
+}
+
+class MainActivity: AppCompatActivity(), MainViewDelegate {
     
     private lateinit var binding: ActivityMainBinding
     
@@ -43,12 +39,6 @@ class MainActivity: AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater).apply { setContentView(root) }
         
         setupUI()
-        val check = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        if (check == PackageManager.PERMISSION_GRANTED) {
-            //Do something
-        } else {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1024)
-        }
     }
     
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -59,81 +49,87 @@ class MainActivity: AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> true
-            R.id.action_delete_all -> true
+            R.id.action_delete_all -> {
+                deleteAllAttestations()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
     
-    private fun setupUI() {
-        binding.webview.settings.javaScriptEnabled = true;
-        binding.webview.settings.javaScriptCanOpenWindowsAutomatically = true;
-        binding.webview.settings.setSupportMultipleWindows(true);
-        binding.webview.settings.setSupportZoom(true);
-        binding.webview.settings.allowFileAccess = true;
-        binding.webview.settings.domStorageEnabled = true;
-        val toto = JavaScriptInterface(this)
-        binding.webview.addJavascriptInterface(toto, "Android");
-        binding.webview.webChromeClient = object: WebChromeClient() {
-            override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
-                return super.onJsAlert(view, url, message, result)
-            }
-    
-            override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
-                return super.onJsConfirm(view, url, message, result)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            IntentRequest.details -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    updateList()
+                }
             }
         }
-        binding.webview.setDownloadListener(object: DownloadListener {
-            override fun onDownloadStart(p0: String?, p1: String?, p2: String?, p3: String?, p4: Long) {
-                JavaScriptInterface.getBase64StringFromBlobUrl(p0)
-                //webview.loadUrl(p0)
-                //binding.webview.loadUrl(URLDecoder.decode(p0, "UTF-8"))
-                binding.webview.loadUrl(JavaScriptInterface.getBase64StringFromBlobUrl(p0));
-                /*
-                val request = DownloadManager.Request(Uri.parse(p0?.replace("blob:", "")))
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED) //Notify client once download is completed!
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Is it working")
-                val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                dm.enqueue(request)
-                Toast.makeText(applicationContext, "Downloading File",  //To notify the Client that the file is being downloaded
-                        Toast.LENGTH_LONG)
-                        .show()
-                        
-                 */
-            }
-        })
-        binding.webview.setWebViewClient(object: WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                //view.loadUrl(url)
-                return false
-            }
+    }
     
-            override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
-                return super.shouldInterceptRequest(view, request)
-            }
-    
-            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                super.onReceivedError(view, request, error)
-            }
-        
-            override fun onPageFinished(view: WebView, url: String) {
-                print(url)
-            }
-        })
-        binding.webview.loadUrl("https://media.interieur.gouv.fr/deplacement-covid-19/")
-        
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupUI() {
         setSupportActionBar(binding.toolbar)
         with(binding) {
             val attestationListAdapter = AttestationListAdapter()
+            attestationListAdapter.delegate = object : AttestationListAdapterDelegate {
+                override fun didClickOnAttestation(title: String) {
+                    val intent = Intent(this@MainActivity, DetailsAttestationActivity::class.java)
+                    intent.putExtra("fileName", title)
+                    startActivityForResult(intent, IntentRequest.details)
+                }
+            }
             val linearLayoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
             with(binding.recyclerView) {
                 layoutManager = linearLayoutManager
                 adapter = attestationListAdapter
                 addItemDecoration(SpaceItemDecoration((12 * (context?.resources?.displayMetrics?.density ?: 0.0f)).toInt()))
             }
+            updateList()
             
-            createAttestationButton.setOnClickListener { view ->
-                CreateAttestationFragment.newInstance(Bundle()).show(supportFragmentManager, CreateAttestationFragment::class.java.name)
+            createAttestationButton.setOnClickListener { _ ->
+                val fragment = CreateAttestationFragment.newInstance(Bundle())
+                fragment.delegate = this@MainActivity
+                fragment.show(supportFragmentManager, CreateAttestationFragment::class.java.name)
+            }
+            
+            swiperefreshLayout.setOnRefreshListener {
+                updateList()
+                swiperefreshLayout.isRefreshing = false
             }
         }
+    }
+    
+    private fun updateList() {
+        val files = filesDir?.list()?.toList()
+        with(binding) {
+            if (files?.isEmpty() != false) {
+                emptyTextView.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            } else {
+                emptyTextView.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+                (recyclerView.adapter as? AttestationListAdapter)?.updateData(files)
+            }
+        }
+    }
+    
+    private fun deleteAllAttestations() {
+        AlertDialog.Builder(this)
+                .setTitle("Delete all attestations?")
+                .setPositiveButton("Delete forever") { _, _ ->
+                    val files = filesDir?.list()?.toList()
+                    files?.forEach {
+                        File(filesDir, it).delete()
+                    }
+                    updateList()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+    }
+    
+    override fun didCreateNewAttestation() {
+        updateList()
     }
 }

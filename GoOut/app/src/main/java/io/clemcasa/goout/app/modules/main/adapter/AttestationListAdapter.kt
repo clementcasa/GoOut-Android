@@ -8,10 +8,11 @@ import io.clemcasa.goout.databinding.ViewholderAttestationBinding
 
 class AttestationListAdapter: RecyclerView.Adapter<AttestationViewHolder>() {
     
-    var titles: ArrayList<String> = ArrayList()
+    var titles: List<String> = listOf()
+    var delegate: AttestationListAdapterDelegate? = null
     
-    fun updateData(titles: ArrayList<String>) {
-        this.titles = titles
+    fun updateData(titles: List<String>) {
+        this.titles = titles.toList()
         notifyDataSetChanged()
     }
     
@@ -21,6 +22,6 @@ class AttestationListAdapter: RecyclerView.Adapter<AttestationViewHolder>() {
     override fun getItemCount(): Int = titles.count()
     
     override fun onBindViewHolder(holder: AttestationViewHolder, position: Int) {
-        holder.onBind(titles[position])
+        holder.onBind(titles[position], delegate)
     }
 }
