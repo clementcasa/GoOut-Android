@@ -1,5 +1,9 @@
 package io.clemcasa.goout.presenter.modules.createAttestation
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 interface CreateAttestationView {
     fun onShowLoading()
     fun onPerformJSScript(jsScript: String)
@@ -27,18 +31,21 @@ class CreateAttestationPresenterImpl: CreateAttestationPresenter {
         view?.onPerformJSScript("${getElement("field-firstname")}.value = 'Clément';")
         view?.onPerformJSScript("${getElement("field-lastname")}.value = 'Casamayou';")
         view?.onPerformJSScript("${getElement("field-birthday")}.value = '26/01/1992';")
-        view?.onPerformJSScript("${getElement("field-lieunaissance")}.value = 'Paris 14 eme';")
+        view?.onPerformJSScript("${getElement("field-placeofbirth")}.value = 'Paris 14 eme';")
         view?.onPerformJSScript("${getElement("field-address")}.value = '86 avenue verdier';")
-        view?.onPerformJSScript("${getElement("field-town")}.value = 'Montrouge';")
+        view?.onPerformJSScript("${getElement("field-city")}.value = 'Montrouge';")
         view?.onPerformJSScript("${getElement("field-zipcode")}.value = '92120';")
+        view?.onPerformJSScript("${getElement("field-heuresortie")}.value = '${getCurrentTime()}';")
     }
     
+    private fun getCurrentTime(): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+    
     override fun setGroceriesCheckBox(checked: Boolean) {
-        view?.onPerformJSScript("${getElement("checkbox-courses")}.checked = $checked")
+        view?.onPerformJSScript("${getElement("checkbox-achats")}.checked = $checked")
     }
     
     override fun setWalkCheckBox(checked: Boolean) {
-        view?.onPerformJSScript("${getElement("checkbox-sport")}.checked = $checked")
+        view?.onPerformJSScript("${getElement("checkbox-sport_animaux")}.checked = $checked")
     }
     
     override fun setDoctorCheckBox(checked: Boolean) {
